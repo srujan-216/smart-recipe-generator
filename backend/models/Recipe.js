@@ -39,16 +39,7 @@ const recipeSchema = new mongoose.Schema(
     // Indian-specific cuisine classification
     cuisine: {
       type: String,
-      enum: [
-        'north-indian',
-        'south-indian',
-        'east-indian',
-        'west-indian',
-        'northeast-indian',
-        'mughlai',
-        'fusion',
-      ],
-      default: 'north-indian',
+      default: 'Indian',
     },
     region: { type: String, default: '' },
 
@@ -70,8 +61,8 @@ const recipeSchema = new mongoose.Schema(
     // Recipe details
     difficulty: {
       type: String,
-      enum: ['Beginner', 'Intermediate', 'Advanced'],
-      default: 'Intermediate',
+      enum: ['Easy', 'Medium', 'Hard'],
+      default: 'Medium',
     },
     spice_level: {
       type: String,
