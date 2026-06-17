@@ -19,7 +19,7 @@ NODE_ENV=production
 MONGO_URI=mongodb+srv://akshayashettymurari_db_user:mittu2007@cluster0.jcykgcm.mongodb.net/smart_recipe_db?retryWrites=true&w=majority
 JWT_SECRET=aB3mK9$xL2#pQ8@wN5vZ7&dF4yH6jC1rS0tU9eW2qX4mJ6kL9pO3sR5uV7yZ1cB8dE
 JWT_EXPIRES_IN=7d
-GROQ_API_KEY=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
+GROQ_API_KEY=gsk_YOUR_GROQ_API_KEY_HERE
 CLIENT_URL=will-update-after-deployment
 ```
 
@@ -142,7 +142,7 @@ NODE_ENV = production
 MONGO_URI = mongodb+srv://akshayashettymurari_db_user:mittu2007@cluster0.jcykgcm.mongodb.net/smart_recipe_db?retryWrites=true&w=majority
 JWT_SECRET = aB3mK9$xL2#pQ8@wN5vZ7&dF4yH6jC1rS0tU9eW2qX4mJ6kL9pO3sR5uV7yZ1cB8dE
 JWT_EXPIRES_IN = 7d
-GROQ_API_KEY = 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
+GROQ_API_KEY = gsk_YOUR_GROQ_API_KEY_HERE
 CLIENT_URL = https://smart-recipe-generator.onrender.com
 ```
 
