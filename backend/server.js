@@ -22,7 +22,16 @@ connectDB();
 const app = express();
 
 // ── Security Middleware ──────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+}));
 app.use(mongoSanitize());
 
 // ── Rate limiting ────────────────────────────────────────
