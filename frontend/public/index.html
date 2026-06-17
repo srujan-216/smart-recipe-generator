@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Smart Recipe Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+<style>
+/* ══ RESET & VARIABLES ══════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --primary:#c2571a;
+  --primary-dark:#9e3f0e;
+  --primary-mid:#d4693a;
+  --primary-light:#fef0e6;
+  --primary-border:rgba(194,87,26,0.18);
+  --green:#2d6a4f;
+  --green-dark:#1e4d38;
+  --green-light:#eaf6f0;
+  --gold:#92400e;
+  --gold-light:#fef3c7;
+  --bg:#faf8f5;
+  --bg2:#f2ece3;
+  --bg3:#ebe3d8;
+  --surface:#ffffff;
+  --border:#e8ddd2;
+  --border2:#d4c7b8;
+  --text:#1c1917;
+  --text2:#57534e;
+  --muted:#a8a29e;
+  --muted2:#c8c0b8;
+  --shadow-xs:0 1px 3px rgba(28,25,20,0.05);
+  --shadow-sm:0 2px 8px rgba(28,25,20,0.07),0 1px 3px rgba(28,25,20,0.04);
+  --shadow:0 4px 20px rgba(28,25,20,0.09),0 1px 6px rgba(28,25,20,0.04);
+  --shadow-lg:0 12px 48px rgba(28,25,20,0.12),0 4px 12px rgba(28,25,20,0.05);
+  --shadow-xl:0 28px 80px rgba(28,25,20,0.16);
+  --radius-sm:8px;
+  --radius:12px;
+  --radius-md:16px;
+  --radius-lg:20px;
+  --radius-xl:28px;
+  --radius-full:9999px;
+  --nav-h:68px;
+}
+
+html{scroll-behavior:smooth;font-size:15px}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ══ SCROLLBAR ══════════════════════════════════ */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+
+/* ══ NAVBAR ══════════════════════════════════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;
+  background:rgba(250,248,245,0.88);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  transition:box-shadow .3s;
+}
+nav.scrolled{box-shadow:var(--shadow-sm)}
+.nav-logo{
+  font-family:'Lora',serif;font-size:19px;font-weight:700;
+  color:var(--primary);letter-spacing:-.02em;cursor:pointer;user-select:none;
+  display:flex;align-items:center;gap:8px;
+}
+.nav-logo-icon{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-mid));
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;box-shadow:0 2px 8px rgba(194,87,26,0.3);
+}
+.nav-logo span{color:var(--text);font-weight:500;font-style:italic}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nav-link{
+  padding:7px 14px;border-radius:var(--radius-sm);
+  font-size:14px;font-weight:500;color:var(--text2);
+  cursor:pointer;transition:all .18s;border:none;background:none;
+  font-family:'DM Sans',sans-serif;position:relative;
+}
+.nav-link:hover{background:var(--bg2);color:var(--text)}
+.nav-link.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.nav-right{display:flex;align-items:center;gap:10px}
+.btn-login{
+  padding:8px 18px;border-radius:var(--radius-sm);
+  border:1.5px solid var(--border2);font-size:14px;font-weight:500;
+  color:var(--text2);background:none;cursor:pointer;
+  transition:all .18s;font-family:'DM Sans',sans-serif;
+}
+.btn-login:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+.btn-signup{
+  padding:8px 18px;border-radius:var(--radius-sm);border:none;
+  font-size:14px;font-weight:600;
+  background:linear-gradient(135deg,var(--primary),var(--primary-mid));
+  color:#fff;cursor:pointer;transition:all .2s;
+  font-family:'DM Sans',sans-serif;
+  box-shadow:0 2px 10px rgba(194,87,26,0.28);
+}
+.btn-signup:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(194,87,26,0.38)}
+.user-pill{
+  display:none;align-items:center;gap:9px;
+  padding:5px 12px 5px 5px;border-radius:var(--radius-full);
+  background:var(--bg2);border:1px solid var(--border);
+  cursor:pointer;transition:all .18s;
+}
+.user-pill:hover{border-color:var(--border2)}
+.user-pill.show{display:flex}
+.avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--primary-mid));
+  color:#fff;font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 4px rgba(194,87,26,0.25);
+}
+.user-name-pill{font-size:13px;font-weight:500;color:var(--text2)}
+.logout-btn{
+  background:none;border:none;cursor:pointer;font-size:11px;
+  color:var(--muted);font-family:'DM Sans',sans-serif;
+  padding:2px 6px;border-radius:4px;transition:color .15s;
+}
+.logout-btn:hover{color:var(--primary)}
+.auth-btns{display:flex;gap:8px}
+
+/* Hamburger */
+.hamburger{
+  display:none;flex-direction:column;gap:5px;
+  cursor:pointer;padding:6px;border:none;background:none;
+}
+.hamburger span{
+  display:block;width:22px;height:2px;
+  background:var(--text);border-radius:2px;
+  transition:all .3s cubic-bezier(.4,0,.2,1);
+}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* Mobile nav drawer */
+.mobile-nav{
+  display:none;position:fixed;top:var(--nav-h);left:0;right:0;z-index:299;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:12px 16px 20px;box-shadow:var(--shadow-lg);
+  flex-direction:column;gap:4px;
+}
+.mobile-nav.open{display:flex}
+.mobile-nav .nav-link{text-align:left;padding:11px 14px;font-size:15px}
+
+/* ══ PAGE SYSTEM ════════════════════════════════ */
+.page{display:none;padding-top:var(--nav-h);min-height:100vh}
+.page.active{display:block}
+
+/* ══ GLOBAL BUTTONS ═════════════════════════════ */
+.btn-primary{
+  padding:13px 28px;border-radius:var(--radius-sm);border:none;
+  font-size:15px;font-weight:600;
+  background:linear-gradient(135deg,var(--primary),var(--primary-mid));
+  color:#fff;cursor:pointer;transition:all .2s;
+  font-family:'DM Sans',sans-serif;
+  box-shadow:0 2px 12px rgba(194,87,26,0.28);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(194,87,26,0.4)}
+.btn-outline{
+  padding:13px 28px;border-radius:var(--radius-sm);
+  border:2px solid var(--border2);font-size:15px;font-weight:600;
+  color:var(--text2);background:none;cursor:pointer;transition:all .2s;
+  font-family:'DM Sans',sans-serif;
+}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+
+/* ══ FORM ELEMENTS ══════════════════════════════ */
+input[type=text],input[type=email],input[type=password],textarea,select{
+  width:100%;background:var(--bg);
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:14px;padding:11px 14px;outline:none;
+  transition:border-color .2s,background .2s,box-shadow .2s;resize:none;
+}
+input[type=text]:focus,input[type=email]:focus,
+input[type=password]:focus,textarea:focus,select:focus{
+  border-color:var(--primary);background:var(--surface);
+  box-shadow:0 0 0 3px rgba(194,87,26,0.1);
+}
+textarea{height:88px;line-height:1.65}
+select option{background:var(--surface)}
+label.lbl{
+  display:block;font-size:11px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:7px;
+}
+.field{margin-bottom:18px}
+
+/* ══ CHIPS ══════════════════════════════════════ */
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.chip{
+  padding:5px 13px;border-radius:var(--radius-full);
+  border:1.5px solid var(--border);font-size:12px;font-weight:500;
+  cursor:pointer;color:var(--text2);transition:all .16s;
+  user-select:none;font-family:'DM Sans',sans-serif;
+}
+.chip:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+.chip.active{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(194,87,26,0.25)}
+
+/* ══ BADGES ═════════════════════════════════════ */
+.badge{
+  display:inline-flex;align-items:center;
+  padding:3px 10px;border-radius:var(--radius-full);
+  font-size:11px;font-weight:600;
+  background:var(--primary-light);color:var(--primary);
+  border:1px solid var(--primary-border);
+}
+.badge.green{background:var(--green-light);color:var(--green);border-color:rgba(45,106,79,0.15)}
+.badge.gold{background:var(--gold-light);color:var(--gold);border-color:rgba(146,64,14,0.15)}
+.badge.dark{background:var(--bg3);color:var(--text2);border-color:var(--border)}
+
+/* ══ TOAST ══════════════════════════════════════ */
+#toast-container{
+  position:fixed;bottom:24px;right:24px;z-index:1000;
+  display:flex;flex-direction:column;gap:10px;pointer-events:none;
+}
+.toast{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 18px;border-radius:var(--radius);
+  font-size:13px;font-weight:500;color:#fff;
+  box-shadow:var(--shadow-lg);pointer-events:all;
+  animation:toastSlide .3s cubic-bezier(.22,1,.36,1);
+  max-width:320px;min-width:200px;
+}
+.toast-icon{font-size:16px;flex-shrink:0}
+.toast.success{background:linear-gradient(135deg,var(--green),#3d8c67)}
+.toast.error{background:linear-gradient(135deg,#c0392b,#e04b3a)}
+.toast.info{background:linear-gradient(135deg,#1c1917,#2c2825)}
+.toast.warning{background:linear-gradient(135deg,#92400e,#b45309)}
+@keyframes toastSlide{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+
+/* ══ HOME — HERO ════════════════════════════════ */
+.hero{
+  position:relative;overflow:hidden;
+  padding:96px 48px 80px;
+  background:linear-gradient(160deg,#fdf8f2 0%,#faf3ea 50%,#f5ebe0 100%);
+}
+.hero::before{
+  content:'';position:absolute;top:-200px;right:-200px;
+  width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(194,87,26,0.07) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero::after{
+  content:'';position:absolute;bottom:-120px;left:-120px;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(45,106,79,0.06) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-inner{
+  max-width:1100px;margin:0 auto;
+  display:grid;grid-template-columns:1.05fr 1fr;
+  gap:56px;align-items:center;position:relative;z-index:1;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:5px 12px;border-radius:var(--radius-full);
+  background:var(--primary-light);border:1px solid var(--primary-border);
+  font-size:11px;font-weight:700;color:var(--primary);
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px;
+}
+.hero-eyebrow span{font-size:14px}
+.hero h1{
+  font-family:'Lora',serif;
+  font-size:clamp(38px,5.2vw,60px);font-weight:700;
+  line-height:1.09;margin-bottom:20px;letter-spacing:-.025em;
+}
+.hero h1 em{color:var(--primary);font-style:italic}
+.hero-sub{
+  font-size:17px;color:var(--text2);line-height:1.8;
+  margin-bottom:36px;font-weight:300;max-width:440px;
+}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.hero-note{
+  margin-top:18px;font-size:12px;color:var(--muted);
+  display:flex;align-items:center;gap:6px;
+}
+.hero-note::before{content:'✓';color:var(--green);font-weight:700}
+
+/* Hero right — floating cards */
+.hero-cards{display:flex;flex-direction:column;gap:14px;position:relative}
+.hero-card{
+  background:var(--surface);border-radius:var(--radius-md);
+  box-shadow:var(--shadow-lg);padding:20px 24px;
+  border:1px solid var(--border);animation:floatCard 7s ease-in-out infinite;
+}
+.hero-card:nth-child(2){animation-delay:-2.5s;margin-left:28px}
+.hero-card:nth-child(3){animation-delay:-5s;margin-left:14px}
+@keyframes floatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.hc-label{
+  font-size:10px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:7px;
+}
+.hc-title{
+  font-family:'Lora',serif;font-size:17px;font-weight:600;
+  color:var(--text);margin-bottom:10px;
+}
+.hc-tags{display:flex;gap:7px}
+.hc-stat{
+  display:flex;align-items:baseline;gap:4px;
+  font-family:'Lora',serif;font-size:24px;font-weight:700;color:var(--primary);
+}
+.hc-stat small{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);font-weight:400}
+
+/* ══ HOME — HOW IT WORKS ════════════════════════ */
+.how-section{
+  background:var(--surface);border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);padding:72px 48px;
+}
+.how-inner{max-width:1100px;margin:0 auto}
+.section-label{
+  font-size:11px;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--primary);margin-bottom:40px;
+}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
+.how-grid::before{
+  content:'';position:absolute;top:22px;left:calc(16.67% + 20px);
+  width:calc(66.66% - 40px);height:1px;
+  background:linear-gradient(90deg,var(--border) 0%,var(--border2) 50%,var(--border) 100%);
+}
+.how-step{padding:0 28px 0 0}
+.how-step:last-child{padding-right:0}
+.hs-num{
+  width:44px;height:44px;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--primary),var(--primary-mid));
+  color:#fff;font-family:'Lora',serif;font-size:18px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;box-shadow:0 4px 14px rgba(194,87,26,0.3);
+}
+.hs-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px}
+.hs-desc{font-size:14px;color:var(--text2);line-height:1.75;font-weight:300}
+
+/* ══ HOME — FEATURES ════════════════════════════ */
+.features-section{padding:80px 48px;background:var(--bg)}
+.feat-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1.5fr;gap:80px;align-items:start}
+.feat-eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary);margin-bottom:14px}
+.feat-title{
+  font-family:'Lora',serif;font-size:clamp(26px,3vw,36px);
+  font-weight:700;line-height:1.18;letter-spacing:-.02em;margin-bottom:14px;
+}
+.feat-sub{font-size:15px;color:var(--text2);line-height:1.8;font-weight:300;margin-bottom:28px}
+.feat-list{display:flex;flex-direction:column}
+.feat-item{
+  display:flex;gap:16px;padding:20px 0;
+  border-bottom:1px solid var(--border);
+}
+.feat-item:first-child{padding-top:0}
+.feat-item:last-child{border-bottom:none}
+.fi-dot{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  background:var(--primary-light);margin-top:2px;
+}
+.fi-dot.g{background:var(--green-light)}
+.fi-dot.o{background:var(--gold-light)}
+.fi-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:5px}
+.fi-desc{font-size:13px;color:var(--text2);line-height:1.7;font-weight:300}
+
+/* ══ HOME — CTA ═════════════════════════════════ */
+.cta-section{
+  padding:96px 48px;
+  background:linear-gradient(145deg,var(--text) 0%,#2c2521 100%);
+  text-align:center;
+}
+.cta-inner{max-width:560px;margin:0 auto}
+.cta-section h2{
+  font-family:'Lora',serif;font-size:clamp(30px,4.5vw,50px);
+  font-weight:700;color:#fff;letter-spacing:-.025em;
+  line-height:1.12;margin-bottom:16px;
+}
+.cta-section h2 em{color:var(--primary-mid);font-style:italic}
+.cta-section p{font-size:17px;color:rgba(255,255,255,0.55);margin-bottom:36px;font-weight:300}
+.btn-light{
+  padding:14px 36px;border-radius:var(--radius-sm);border:none;
+  font-size:15px;font-weight:700;background:#fff;color:var(--primary);
+  cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;
+  box-shadow:0 4px 20px rgba(0,0,0,0.25);
+}
+.btn-light:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+
+/* ══ FOOTER ═════════════════════════════════════ */
+footer{
+  background:var(--text);border-top:1px solid rgba(255,255,255,0.06);
+  text-align:center;padding:24px 20px;
+  font-size:13px;color:rgba(255,255,255,0.35);letter-spacing:.03em;
+}
+footer a{color:rgba(255,255,255,0.55);text-decoration:none;transition:color .15s}
+footer a:hover{color:rgba(255,255,255,0.85)}
+
+/* ══ DASHBOARD ══════════════════════════════════ */
+.dash-wrap{max-width:1240px;margin:0 auto;padding:44px 40px 80px}
+.page-head{margin-bottom:36px}
+.page-head h2{
+  font-family:'Lora',serif;font-size:30px;font-weight:700;
+  letter-spacing:-.02em;margin-bottom:5px;
+}
+.page-head p{font-size:14px;color:var(--text2);font-weight:300}
+
+/* Stat cards */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px}
+.stat-card{
+  border-radius:var(--radius-md);padding:22px 24px;
+  border:1px solid transparent;position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:'';position:absolute;top:-20px;right:-20px;
+  width:80px;height:80px;border-radius:50%;
+  background:rgba(255,255,255,0.12);
+}
+.stat-card.orange{background:linear-gradient(135deg,#c2571a,#d4693a);border-color:rgba(194,87,26,0.2)}
+.stat-card.rose{background:linear-gradient(135deg,#be185d,#db2777);border-color:rgba(190,24,93,0.2)}
+.stat-card.teal{background:linear-gradient(135deg,#0f766e,#14b8a6);border-color:rgba(15,118,110,0.2)}
+.stat-card.amber{background:linear-gradient(135deg,#b45309,#d97706);border-color:rgba(180,83,9,0.2)}
+.sc-icon{font-size:22px;margin-bottom:14px;opacity:.9}
+.sc-val{
+  font-family:'Lora',serif;font-size:34px;font-weight:700;
+  color:#fff;line-height:1;margin-bottom:4px;
+}
+.sc-lbl{font-size:12px;color:rgba(255,255,255,0.75);font-weight:400}
+
+/* Dashboard panels */
+.dash-row{display:grid;grid-template-columns:1.7fr 1fr;gap:20px}
+.panel{
+  background:var(--surface);border-radius:var(--radius-md);
+  border:1px solid var(--border);overflow:hidden;
+}
+.panel-head{
+  padding:18px 22px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.panel-head h3{
+  font-family:'Lora',serif;font-size:17px;font-weight:600;color:var(--text);
+}
+.panel-link{font-size:13px;color:var(--primary);cursor:pointer;font-weight:500}
+.panel-link:hover{text-decoration:underline}
+.panel-body{padding:20px 22px}
+
+/* Recent recipe rows */
+.r-row{
+  display:flex;align-items:center;gap:14px;
+  padding:10px 0;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .15s;border-radius:4px;
+}
+.r-row:last-child{border-bottom:none}
+.r-row:hover{background:var(--bg)}
+.r-emoji{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--primary-light);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.r-info{flex:1;min-width:0}
+.r-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-meta{font-size:12px;color:var(--muted)}
+.r-time{font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+
+/* Side panels stack */
+.side-stack{display:flex;flex-direction:column;gap:20px}
+
+/* Quick actions */
+.qa-list{display:flex;flex-direction:column;gap:9px}
+.qa-btn{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:var(--bg);
+  cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;text-align:left;
+}
+.qa-btn:hover{border-color:var(--primary);background:var(--primary-light);transform:translateX(3px)}
+.qa-icon{
+  width:34px;height:34px;border-radius:8px;
+  background:var(--surface);display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;border:1px solid var(--border);
+}
+.qa-label{font-size:13px;font-weight:500;color:var(--text)}
+.qa-sub{font-size:11px;color:var(--muted)}
+
+/* Cuisine bars */
+.c-list{display:flex;flex-direction:column;gap:12px}
+.c-item{}
+.c-row{display:flex;justify-content:space-between;margin-bottom:5px}
+.c-name{font-size:13px;font-weight:500;color:var(--text)}
+.c-pct{font-size:12px;color:var(--muted)}
+.c-bar{height:5px;border-radius:3px;background:var(--bg2);overflow:hidden}
+.c-fill{height:100%;border-radius:3px;transition:width .9s cubic-bezier(.4,0,.2,1)}
+.c-fill.c0{background:var(--primary)}
+.c-fill.c1{background:var(--green)}
+.c-fill.c2{background:var(--gold)}
+.c-fill.c3{background:#7c3aed}
+.c-fill.c4{background:#0891b2}
+.c-fill.c5{background:#be185d}
+
+/* ══ GENERATOR ══════════════════════════════════ */
+.gen-wrap{max-width:1240px;margin:0 auto;padding:44px 40px 80px}
+.gen-layout{display:grid;grid-template-columns:370px 1fr;gap:28px;align-items:start}
+.gen-panel{
+  background:var(--surface);border-radius:var(--radius-md);
+  border:1px solid var(--border);padding:26px;
+  position:sticky;top:calc(var(--nav-h) + 20px);
+  box-shadow:var(--shadow-sm);
+}
+.gp-title{
+  font-family:'Lora',serif;font-size:15px;font-weight:600;
+  color:var(--text);margin-bottom:20px;padding-bottom:16px;
+  border-bottom:1px solid var(--border);
+}
+.btn-gen{
+  width:100%;margin-top:4px;padding:13px;
+  border:none;border-radius:var(--radius-sm);
+  background:linear-gradient(135deg,var(--primary),var(--primary-mid));
+  color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 2px 10px rgba(194,87,26,0.28);
+}
+.btn-gen:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(194,87,26,0.38)}
+.btn-gen:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
+.gen-result-wrap{min-height:540px}
+.gen-empty{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:540px;text-align:center;gap:16px;
+  background:var(--surface);border-radius:var(--radius-md);
+  border:1.5px dashed var(--border2);
+}
+.gen-empty-icon{
+  width:80px;height:80px;border-radius:var(--radius-xl);
+  background:var(--primary-light);display:flex;align-items:center;
+  justify-content:center;font-size:36px;
+  box-shadow:0 4px 16px rgba(194,87,26,0.12);
+}
+.gen-empty h3{font-family:'Lora',serif;font-size:20px;font-weight:600}
+.gen-empty p{font-size:14px;color:var(--muted);line-height:1.75;max-width:260px}
+.gen-loader{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:540px;gap:18px;
+  background:var(--surface);border-radius:var(--radius-md);
+  border:1px solid var(--border);
+}
+.spinner{
+  width:44px;height:44px;border-radius:50%;
+  border:3px solid var(--border2);border-top-color:var(--primary);
+  animation:spin .85s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gen-loader p{font-size:14px;color:var(--text2);font-weight:300}
+.gen-loader .loader-dots{display:flex;gap:5px;margin-top:4px}
+.loader-dots span{
+  width:5px;height:5px;border-radius:50%;background:var(--primary);
+  animation:dotPulse 1.2s ease-in-out infinite;
+}
+.loader-dots span:nth-child(2){animation-delay:.2s}
+.loader-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dotPulse{0%,80%,100%{transform:scale(0.8);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* ── Recipe result card ── */
+.recipe-card{
+  background:var(--surface);border-radius:var(--radius-md);
+  border:1px solid var(--border);overflow:hidden;
+  box-shadow:var(--shadow);animation:fadeUp .42s cubic-bezier(.22,1,.36,1);
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+.rc-header{
+  padding:32px;
+  background:linear-gradient(160deg,#fdf8f2,#f5ebe0);
+  border-bottom:1px solid var(--border);
+}
+.rc-badges{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.rc-name{
+  font-family:'Lora',serif;font-size:34px;font-weight:700;
+  line-height:1.1;margin-bottom:10px;letter-spacing:-.02em;
+}
+.rc-desc{font-size:15px;color:var(--text2);line-height:1.75;font-weight:300}
+.rc-times{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-top:1px solid var(--border);
+}
+.rt-item{
+  padding:18px;text-align:center;border-right:1px solid var(--border);
+}
+.rt-item:last-child{border-right:none}
+.rt-val{
+  font-family:'Lora',serif;font-size:22px;font-weight:700;
+  color:var(--primary);display:block;margin-bottom:3px;
+}
+.rt-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+.rc-body{display:grid;grid-template-columns:1fr 1.8fr}
+.rc-col{padding:24px}
+.rc-col.border-r{border-right:1px solid var(--border)}
+.col-title{
+  font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--primary);margin-bottom:16px;display:flex;align-items:center;gap:8px;
+}
+.col-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.ing-list{list-style:none}
+.ing-list li{
+  display:flex;justify-content:space-between;align-items:baseline;
+  gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.5px;
+}
+.ing-list li:last-child{border-bottom:none}
+.ing-qty{color:var(--primary);font-size:12.5px;font-weight:600;white-space:nowrap}
+.step-list{list-style:none;counter-reset:step}
+.step-list li{
+  counter-increment:step;padding:10px 0 10px 42px;
+  border-bottom:1px solid var(--border);
+  font-size:13.5px;color:var(--text2);line-height:1.75;position:relative;
+}
+.step-list li:last-child{border-bottom:none}
+.step-list li::before{
+  content:counter(step);position:absolute;left:0;top:11px;
+  width:26px;height:26px;border-radius:50%;
+  background:var(--primary-light);color:var(--primary);
+  font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.rc-nutrition{
+  padding:20px 24px;border-top:1px solid var(--border);
+  background:var(--bg);
+}
+.nut-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
+  gap:10px;margin-top:12px;
+}
+.nut-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px;text-align:center;
+}
+.nut-val{
+  font-family:'Lora',serif;font-size:20px;font-weight:700;
+  color:var(--green);display:block;margin-bottom:2px;
+}
+.nut-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+.rc-tip{
+  padding:18px 24px;border-top:1px solid var(--border);
+}
+.tip-box{
+  background:var(--primary-light);border:1px solid var(--primary-border);
+  border-radius:var(--radius-sm);padding:14px 16px;
+  font-size:13.5px;color:var(--text2);line-height:1.75;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.tip-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.rc-actions{
+  padding:16px 24px;border-top:1px solid var(--border);
+  display:flex;gap:10px;background:var(--bg);
+}
+.btn-fav{
+  padding:9px 20px;border-radius:var(--radius-sm);border:none;
+  background:linear-gradient(135deg,var(--green),#3d8c67);color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .18s;
+  box-shadow:0 2px 8px rgba(45,106,79,0.25);
+}
+.btn-fav:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(45,106,79,0.35)}
+.btn-fav.is-fav{background:linear-gradient(135deg,var(--primary),var(--primary-mid))}
+.btn-again{
+  padding:9px 20px;border-radius:var(--radius-sm);
+  border:1.5px solid var(--border2);background:none;color:var(--text2);
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .18s;
+}
+.btn-again:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+.gen-error{margin-top:10px}
+.err-box{
+  padding:10px 14px;border-radius:var(--radius-sm);
+  background:#fef0ee;color:#c0392b;
+  border:1px solid #f5c6c0;font-size:13px;line-height:1.5;
+}
+
+/* ══ HISTORY ════════════════════════════════════ */
+.hist-wrap{max-width:1240px;margin:0 auto;padding:44px 40px 80px}
+.hist-controls{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;gap:16px;flex-wrap:wrap;
+}
+.hist-filters{display:flex;gap:8px;flex-wrap:wrap}
+.hf-btn{
+  padding:6px 16px;border-radius:var(--radius-full);
+  border:1.5px solid var(--border);font-size:13px;font-weight:500;
+  color:var(--text2);background:none;cursor:pointer;
+  transition:all .16s;font-family:'DM Sans',sans-serif;
+}
+.hf-btn:hover,.hf-btn.active{
+  border-color:var(--primary);color:var(--primary);background:var(--primary-light);
+}
+.hist-search-wrap{position:relative;width:260px}
+.hist-search-wrap::before{
+  content:'🔍';position:absolute;left:13px;top:50%;
+  transform:translateY(-50%);font-size:13px;pointer-events:none;
+  filter:grayscale(1);opacity:.5;
+}
+.hist-search-wrap input{
+  padding:9px 14px 9px 38px;border-radius:var(--radius-full);
+  background:var(--surface);font-size:13px;
+}
+.hist-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:18px;
+}
+.hist-empty-state{
+  grid-column:1/-1;text-align:center;padding:80px 20px;
+}
+.hist-empty-state .empty-icon{font-size:48px;margin-bottom:12px}
+.hist-empty-state p{font-size:15px;color:var(--muted);line-height:1.8}
+
+/* History card */
+.hist-card{
+  background:var(--surface);border-radius:var(--radius-md);
+  border:1px solid var(--border);overflow:hidden;
+  transition:all .22s cubic-bezier(.4,0,.2,1);cursor:pointer;
+  position:relative;
+}
+.hist-card:hover{
+  transform:translateY(-5px);box-shadow:var(--shadow-lg);border-color:var(--border2);
+}
+.hist-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--cuisine-color,var(--primary));
+  border-radius:var(--radius-md) var(--radius-md) 0 0;
+}
+.hcard-top{
+  padding:18px 18px 14px;
+  background:linear-gradient(160deg,#fdf8f2,#f7f0e6);
+}
+.hcard-badges{display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap}
+.hcard-name{
+  font-family:'Lora',serif;font-size:18px;font-weight:600;
+  margin-bottom:5px;color:var(--text);line-height:1.3;
+}
+.hcard-desc{
+  font-size:12.5px;color:var(--text2);line-height:1.6;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.hcard-bot{
+  padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+}
+.hcard-meta{display:flex;gap:14px}
+.hm{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.hcard-actions{display:flex;gap:6px}
+.ha-btn{
+  width:30px;height:30px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:none;
+  cursor:pointer;font-size:13px;transition:all .16s;
+  display:flex;align-items:center;justify-content:center;
+}
+.ha-btn:hover{background:var(--primary-light);border-color:var(--primary)}
+.ha-btn.is-fav{color:var(--primary)}
+
+/* ══ MODALS ═════════════════════════════════════ */
+.overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(20,18,16,0.55);backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.overlay.open{display:flex}
+.modal{
+  background:var(--surface);width:100%;max-width:420px;
+  border-radius:var(--radius-xl);border:1px solid var(--border);
+  box-shadow:var(--shadow-xl);overflow:hidden;
+  animation:modalIn .3s cubic-bezier(.22,1,.36,1);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(14px)}to{opacity:1;transform:none}}
+.modal-head{padding:26px 28px 0;display:flex;align-items:flex-start;justify-content:space-between}
+.modal-title{font-family:'Lora',serif;font-size:17px;font-weight:700}
+.modal-sub{font-size:13px;color:var(--muted);margin-top:3px}
+.modal-close{
+  background:none;border:none;cursor:pointer;font-size:18px;
+  color:var(--muted);padding:4px;line-height:1;transition:color .15s;
+  border-radius:6px;
+}
+.modal-close:hover{color:var(--text);background:var(--bg2)}
+.modal-body{padding:24px 28px 28px}
+.modal-field{margin-bottom:16px}
+.modal-field label{
+  display:block;font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:7px;
+}
+.modal-field input{padding:11px 14px;border-radius:var(--radius-sm)}
+.modal-btn{
+  width:100%;padding:13px;border-radius:var(--radius-sm);border:none;
+  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;
+  background:linear-gradient(135deg,var(--primary),var(--primary-mid));
+  color:#fff;cursor:pointer;transition:all .2s;margin-top:6px;
+  box-shadow:0 2px 12px rgba(194,87,26,0.28);
+}
+.modal-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(194,87,26,0.38)}
+.modal-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+.modal-switch{text-align:center;margin-top:18px;font-size:13px;color:var(--text2)}
+.modal-switch a{color:var(--primary);cursor:pointer;font-weight:600;text-decoration:none}
+.modal-switch a:hover{text-decoration:underline}
+.modal-divider{
+  display:flex;align-items:center;gap:10px;margin:16px 0;
+  color:var(--muted);font-size:12px;
+}
+.modal-divider::before,.modal-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.msg-box{
+  padding:10px 13px;border-radius:var(--radius-sm);
+  font-size:13px;margin-bottom:14px;display:none;line-height:1.5;
+}
+.msg-box.error{background:#fef0ee;color:#c0392b;border:1px solid #f5c6c0;display:block}
+.msg-box.success{background:var(--green-light);color:var(--green);border:1px solid rgba(45,106,79,0.2);display:block}
+
+/* Recipe detail modal */
+.recipe-detail-modal{
+  max-width:860px;max-height:90vh;
+  overflow-y:auto;scroll-behavior:smooth;
+}
+.rdm-close-bar{
+  position:sticky;top:0;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
+}
+.rdm-close-bar h4{font-family:'Lora',serif;font-size:15px;font-weight:600;color:var(--text);max-width:70%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdm-close-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:var(--radius-sm);
+  border:1.5px solid var(--border);background:none;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  color:var(--text2);cursor:pointer;transition:all .15s;
+  white-space:nowrap;
+}
+.rdm-close-btn:hover{border-color:var(--border2);background:var(--bg)}
+#rdm-content{}
+
+/* ══ RESPONSIVE ═════════════════════════════════ */
+@media(max-width:1024px){
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .dash-row{grid-template-columns:1fr}
+  .feat-inner{grid-template-columns:1fr;gap:40px}
+}
+@media(max-width:900px){
+  nav{padding:0 20px}
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .hero{padding:64px 20px 56px}
+  .hero-inner{grid-template-columns:1fr;gap:36px}
+  .hero-cards{display:none}
+  .how-section,.features-section,.cta-section{padding:56px 20px}
+  .how-grid{grid-template-columns:1fr;gap:28px}
+  .how-grid::before{display:none}
+  .how-step{padding:0}
+  .dash-wrap,.gen-wrap,.hist-wrap{padding:32px 20px 60px}
+  .gen-layout{grid-template-columns:1fr}
+  .gen-panel{position:static}
+  .rc-body{grid-template-columns:1fr}
+  .rc-col.border-r{border-right:none;border-bottom:1px solid var(--border)}
+  .hist-controls{flex-direction:column;align-items:flex-start}
+  .hist-search-wrap{width:100%}
+  .recipe-detail-modal{max-height:100vh;border-radius:var(--radius-lg) var(--radius-lg) 0 0;align-self:flex-end;margin:-20px -20px -20px}
+}
+@media(max-width:640px){
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .rc-times{grid-template-columns:repeat(3,1fr)}
+  .nut-grid{grid-template-columns:repeat(2,1fr)}
+  .hero-cta{flex-direction:column;align-items:flex-start}
+  .hero-cta .btn-primary,.hero-cta .btn-outline{width:100%;text-align:center}
+  .gen-layout{gap:20px}
+}
+</style>
+<script src="api.js"></script>
+</head>
+<body>
+
+<!-- ══ TOAST CONTAINER ═══════════════════════════════ -->
+<div id="toast-container"></div>
+
+<!-- ══ NAVBAR ════════════════════════════════════════ -->
+<nav id="main-nav">
+  <div class="nav-logo" onclick="showPage('home')">
+    <div class="nav-logo-icon">🍽</div>
+    Smart <span>Recipe</span>
+  </div>
+
+  <div class="nav-links" id="nav-links">
+    <button class="nav-link active" onclick="showPage('home')">Home</button>
+    <button class="nav-link" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nav-link" onclick="showPage('generator')">Generator</button>
+    <button class="nav-link" onclick="showPage('history')">History</button>
+  </div>
+
+  <div class="nav-right">
+    <div class="auth-btns" id="authBtns">
+      <button class="btn-login" onclick="openModal('login')">Log In</button>
+      <button class="btn-signup" onclick="openModal('signup')">Sign Up</button>
+    </div>
+    <div class="user-pill" id="userPill">
+      <div class="avatar" id="userAvatar">A</div>
+      <span class="user-name-pill" id="userName">Chef</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile nav drawer -->
+<div class="mobile-nav" id="mobile-nav">
+  <button class="nav-link active" onclick="showPage('home');closeMobileNav()">Home</button>
+  <button class="nav-link" onclick="showPage('dashboard');closeMobileNav()">Dashboard</button>
+  <button class="nav-link" onclick="showPage('generator');closeMobileNav()">Generator</button>
+  <button class="nav-link" onclick="showPage('history');closeMobileNav()">History</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- HOME PAGE                                         -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-eyebrow"><span>✦</span> Powered by Gemini AI</div>
+        <h1>What's in your<br><em>kitchen today?</em></h1>
+        <p class="hero-sub">Type in whatever ingredients you have. Our AI turns them into a proper recipe — with exact steps, cook times, and full nutrition info.</p>
+        <div class="hero-cta">
+          <button class="btn-primary" onclick="showPage('generator')">Start cooking →</button>
+          <button class="btn-outline" onclick="showPage('dashboard')">My kitchen</button>
+        </div>
+        <p class="hero-note">Free forever — no subscription needed</p>
+      </div>
+      <div class="hero-cards">
+        <div class="hero-card">
+          <div class="hc-label">Tonight's suggestion</div>
+          <div class="hc-title">Lemon Garlic Chicken</div>
+          <div class="hc-tags">
+            <span class="badge">Italian</span>
+            <span class="badge green">30 min</span>
+            <span class="badge gold">Easy</span>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hc-label">Nutrition per serving</div>
+          <div style="display:flex;gap:24px;margin-top:4px">
+            <div class="hc-stat">480<small>kcal</small></div>
+            <div class="hc-stat" style="color:var(--green)">38g<small>protein</small></div>
+            <div class="hc-stat" style="color:var(--gold)">22g<small>carbs</small></div>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hc-label">Chef's tip</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.65;margin-top:4px">
+            💡 Pat chicken dry before searing — you'll get a much better crust every time.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="how-section">
+    <div class="how-inner">
+      <div class="section-label">How it works</div>
+      <div class="how-grid">
+        <div class="how-step">
+          <div class="hs-num">1</div>
+          <div class="hs-title">List your ingredients</div>
+          <div class="hs-desc">Type whatever you have — leftovers, half a block of tofu, three lonely carrots. Anything goes.</div>
+        </div>
+        <div class="how-step">
+          <div class="hs-num">2</div>
+          <div class="hs-title">Set preferences</div>
+          <div class="hs-desc">Choose a cuisine, dietary needs, how long you've got. Or leave it all open and let AI surprise you.</div>
+        </div>
+        <div class="how-step">
+          <div class="hs-num">3</div>
+          <div class="hs-title">Get your recipe</div>
+          <div class="hs-desc">Full steps, ingredient amounts, nutrition breakdown, and a chef's tip that actually makes a difference.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features-section">
+    <div class="feat-inner">
+      <div>
+        <div class="feat-eyebrow">What you get</div>
+        <h2 class="feat-title">A kitchen assistant that actually understands your fridge</h2>
+        <p class="feat-sub">No recipe blogs, no ads, no scrolling past life stories. Just the recipe — clear, complete, and yours.</p>
+        <button class="btn-primary" onclick="showPage('generator')">Try it now →</button>
+      </div>
+      <div class="feat-list">
+        <div class="feat-item">
+          <div class="fi-dot">🥗</div>
+          <div>
+            <div class="fi-title">Works with what you have</div>
+            <div class="fi-desc">No shopping required. Put in what's in your kitchen and get something that actually makes sense to cook tonight.</div>
+          </div>
+        </div>
+        <div class="feat-item">
+          <div class="fi-dot g">⏱</div>
+          <div>
+            <div class="fi-title">Set your time limit</div>
+            <div class="fi-desc">Got 15 minutes or the whole afternoon? Every recipe respects your time constraint.</div>
+          </div>
+        </div>
+        <div class="feat-item">
+          <div class="fi-dot o">🥦</div>
+          <div>
+            <div class="fi-title">Dietary filters that work</div>
+            <div class="fi-desc">Vegan, keto, gluten-free, dairy-free — pick any combination and every recipe honours those boundaries.</div>
+          </div>
+        </div>
+        <div class="feat-item">
+          <div class="fi-dot">📊</div>
+          <div>
+            <div class="fi-title">Full nutrition breakdown</div>
+            <div class="fi-desc">Calories, protein, carbs, fat, and fibre — all calculated per serving, every time.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2>Open the fridge.<br><em>We'll handle the rest.</em></h2>
+      <p>Takes about 30 seconds to get your first recipe.</p>
+      <button class="btn-light" onclick="showPage('generator')">Generate a recipe →</button>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Smart Recipe Generator &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a href="#">Terms</a></p>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- DASHBOARD PAGE                                    -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="page" id="page-dashboard">
+  <div class="dash-wrap">
+    <div class="page-head">
+      <h2>Good <span id="timeGreet">day</span>, <span id="dashName">Chef</span> 👋</h2>
+      <p>Here's what's cooking in your kitchen.</p>
+    </div>
+
+    <div class="stat-grid" id="dash-stats">
+      <div class="stat-card orange"><div class="sc-icon">🍽</div><div class="sc-val">0</div><div class="sc-lbl">Recipes Generated</div></div>
+      <div class="stat-card rose"><div class="sc-icon">❤️</div><div class="sc-val">0</div><div class="sc-lbl">Saved Favourites</div></div>
+      <div class="stat-card teal"><div class="sc-icon">🌍</div><div class="sc-val">0</div><div class="sc-lbl">Cuisines Explored</div></div>
+      <div class="stat-card amber"><div class="sc-icon">🔥</div><div class="sc-val">0</div><div class="sc-lbl">Day Streak</div></div>
+    </div>
+
+    <div class="dash-row">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Recent Recipes</h3>
+          <span class="panel-link" onclick="showPage('history')">View all →</span>
+        </div>
+        <div class="panel-body" id="recent-list">
+          <p style="color:var(--muted);font-size:13px">Generate your first recipe to see it here.</p>
+        </div>
+      </div>
+
+      <div class="side-stack">
+        <div class="panel">
+          <div class="panel-head"><h3>Quick Actions</h3></div>
+          <div class="panel-body">
+            <div class="qa-list">
+              <button class="qa-btn" onclick="showPage('generator')">
+                <div class="qa-icon">✨</div>
+                <div><div class="qa-label">Generate New Recipe</div><div class="qa-sub">AI-powered creation</div></div>
+              </button>
+              <button class="qa-btn" onclick="showPage('history')">
+                <div class="qa-icon">📖</div>
+                <div><div class="qa-label">Browse History</div><div class="qa-sub">All your saved recipes</div></div>
+              </button>
+              <button class="qa-btn" onclick="showPage('history');filterHistoryByFav()">
+                <div class="qa-icon">❤️</div>
+                <div><div class="qa-label">View Favourites</div><div class="qa-sub">Your starred recipes</div></div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Cuisine Breakdown</h3></div>
+          <div class="panel-body">
+            <div class="c-list" id="cuisine-breakdown">
+              <p style="color:var(--muted);font-size:13px">Generate some recipes to see your cuisine mix.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- GENERATOR PAGE                                    -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="page" id="page-generator">
+  <div class="gen-wrap">
+    <div class="page-head">
+      <h2>Recipe Generator</h2>
+      <p>Tell us what you have and how you'd like to cook — AI does the rest.</p>
+    </div>
+
+    <div class="gen-layout">
+      <aside class="gen-panel">
+        <div class="gp-title">Craft Your Recipe</div>
+
+        <div class="field">
+          <label class="lbl">Ingredients *</label>
+          <textarea id="g-ingredients" placeholder="e.g. chicken, garlic, lemon, spinach, olive oil…"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="lbl">Cuisine Style</label>
+          <select id="g-cuisine">
+            <option value="">Any Cuisine</option>
+            <option>Italian</option><option>Indian</option><option>Japanese</option>
+            <option>Mexican</option><option>Mediterranean</option><option>Chinese</option>
+            <option>French</option><option>American</option><option>Thai</option>
+            <option>Middle Eastern</option><option>Korean</option><option>Spanish</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="lbl">Dietary Preferences</label>
+          <div class="chips" id="diet-chips">
+            <div class="chip" data-val="vegetarian">Vegetarian</div>
+            <div class="chip" data-val="vegan">Vegan</div>
+            <div class="chip" data-val="gluten-free">Gluten-Free</div>
+            <div class="chip" data-val="dairy-free">Dairy-Free</div>
+            <div class="chip" data-val="keto">Keto</div>
+            <div class="chip" data-val="low-carb">Low-Carb</div>
+            <div class="chip" data-val="high-protein">High-Protein</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">Meal Type</label>
+          <div class="chips" id="meal-chips">
+            <div class="chip active" data-val="">Any</div>
+            <div class="chip" data-val="breakfast">Breakfast</div>
+            <div class="chip" data-val="lunch">Lunch</div>
+            <div class="chip" data-val="dinner">Dinner</div>
+            <div class="chip" data-val="snack">Snack</div>
+            <div class="chip" data-val="dessert">Dessert</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">Max Cooking Time</label>
+          <div class="chips" id="time-chips">
+            <div class="chip active" data-val="">No Limit</div>
+            <div class="chip" data-val="15">15 min</div>
+            <div class="chip" data-val="30">30 min</div>
+            <div class="chip" data-val="45">45 min</div>
+            <div class="chip" data-val="60">1 hour</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">Servings</label>
+          <input type="text" id="g-servings" value="2" placeholder="2"/>
+        </div>
+
+        <button class="btn-gen" id="gen-btn" onclick="generateRecipe()">
+          ✦ Generate Recipe
+        </button>
+        <div class="gen-error" id="gen-error"></div>
+      </aside>
+
+      <main id="gen-result">
+        <div class="gen-empty">
+          <div class="gen-empty-icon">🍽</div>
+          <h3>Ready to cook?</h3>
+          <p>Add your ingredients on the left and hit Generate Recipe to create something delicious.</p>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- HISTORY PAGE                                      -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="page" id="page-history">
+  <div class="hist-wrap">
+    <div class="page-head">
+      <h2>Recipe History</h2>
+      <p>Everything you've generated, searchable and filterable.</p>
+    </div>
+
+    <div class="hist-controls">
+      <div class="hist-filters" id="hist-filter-bar">
+        <button class="hf-btn active" onclick="filterHistory(this,'all')">All</button>
+        <button class="hf-btn" onclick="filterHistory(this,'favourite')">❤️ Favourites</button>
+        <button class="hf-btn" onclick="filterHistory(this,'Italian')">Italian</button>
+        <button class="hf-btn" onclick="filterHistory(this,'Indian')">Indian</button>
+        <button class="hf-btn" onclick="filterHistory(this,'Japanese')">Japanese</button>
+        <button class="hf-btn" onclick="filterHistory(this,'Mexican')">Mexican</button>
+      </div>
+      <div class="hist-search-wrap">
+        <input type="text" id="hist-search-input" placeholder="Search recipes…" oninput="searchHistory()"/>
+      </div>
+    </div>
+
+    <div class="hist-grid" id="hist-grid"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- LOGIN MODAL                                        -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="overlay" id="modal-login" onclick="overlayClose(event,'login')">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Welcome back</div>
+        <div class="modal-sub">Log in to your account</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('login')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="msg-box" id="login-msg"></div>
+      <div class="modal-field">
+        <label>Email Address</label>
+        <input type="email" id="l-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <div class="modal-field">
+        <label>Password</label>
+        <input type="password" id="l-pass" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="modal-btn" id="login-btn" onclick="doLogin()">Log In →</button>
+      <div class="modal-switch">
+        Don't have an account? <a onclick="switchModal('login','signup')">Sign up free</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SIGNUP MODAL                                       -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="overlay" id="modal-signup" onclick="overlayClose(event,'signup')">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Create account</div>
+        <div class="modal-sub">Join Smart Recipe Generator — it's free</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('signup')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="msg-box" id="signup-msg"></div>
+      <div class="modal-field">
+        <label>Full Name</label>
+        <input type="text" id="s-name" placeholder="Your name"/>
+      </div>
+      <div class="modal-field">
+        <label>Email Address</label>
+        <input type="email" id="s-email" placeholder="you@example.com"/>
+      </div>
+      <div class="modal-field">
+        <label>Password</label>
+        <input type="password" id="s-pass" placeholder="At least 6 characters" onkeydown="if(event.key==='Enter')doSignup()"/>
+      </div>
+      <button class="modal-btn" id="signup-btn" onclick="doSignup()">Create Account →</button>
+      <div class="modal-switch">
+        Already have an account? <a onclick="switchModal('signup','login')">Log in</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- RECIPE DETAIL MODAL                                -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="overlay" id="modal-recipe-detail" onclick="overlayClose(event,'recipe-detail')">
+  <div class="modal recipe-detail-modal">
+    <div class="rdm-close-bar">
+      <h4 id="rdm-title">Recipe</h4>
+      <button class="rdm-close-btn" onclick="closeModal('recipe-detail')">✕ Close</button>
+    </div>
+    <div id="rdm-content"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                         -->
+<!-- ══════════════════════════════════════════════════ -->
+<script>
+/* ── TOAST ───────────────────────────────────────── */
+const TOAST_ICONS = { success:'✓', error:'✕', info:'ℹ', warning:'⚠' };
+function showToast(msg, type = 'info', ms = 3200) {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span class="toast-icon">${TOAST_ICONS[type]||'ℹ'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => {
+    t.style.transition = 'all .3s ease';
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(12px)';
+    setTimeout(() => t.remove(), 300);
+  }, ms);
+}
+
+/* ── NAVBAR scroll shadow ──────────────────────── */
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 8);
+}, { passive: true });
+
+/* ── MOBILE NAV ──────────────────────────────────── */
+function toggleMobileNav() {
+  const nav  = document.getElementById('mobile-nav');
+  const btn  = document.getElementById('hamburger');
+  const open = nav.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+function closeMobileNav() {
+  document.getElementById('mobile-nav').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  const nav = document.getElementById('mobile-nav');
+  if (nav.classList.contains('open') && !nav.contains(e.target) && !document.getElementById('hamburger').contains(e.target))
+    closeMobileNav();
+});
+
+/* ── PAGE NAVIGATION ─────────────────────────────── */
+const PAGE_NAV_MAP = { home:'Home', dashboard:'Dashboard', generator:'Generator', history:'History' };
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const label = PAGE_NAV_MAP[id] || '';
+  document.querySelectorAll('.nav-link').forEach(l => {
+    l.classList.toggle('active', l.textContent.trim() === label);
+  });
+  document.querySelectorAll('.mobile-nav .nav-link').forEach(l => {
+    l.classList.toggle('active', l.textContent.trim() === label);
+  });
+  window.scrollTo(0, 0);
+  if (id === 'dashboard' && currentUser) loadDashboard();
+  if (id === 'history'   && currentUser) loadHistory();
+}
+
+/* ── TIME GREETING ───────────────────────────────── */
+(function setGreeting() {
+  const h = new Date().getHours();
+  const g = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+  const el = document.getElementById('timeGreet');
+  if (el) el.textContent = g;
+})();
+
+/* ── AUTH STATE ──────────────────────────────────── */
+let currentUser = null;
+
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  if (!email || !pass) { showMsg('login', 'Please fill in all fields.', 'error'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'Logging in…'; btn.disabled = true;
+  try {
+    const user = await Auth.login(email, pass);
+    setUser(user);
+    closeModal('login');
+    loadDashboard();
+    loadHistory();
+    showToast(`Welcome back, ${user.name.split(' ')[0]}!`, 'success');
+  } catch(e) {
+    showMsg('login', e.message || 'Login failed', 'error');
+  } finally {
+    btn.textContent = 'Log In →'; btn.disabled = false;
+  }
+}
+
+async function doSignup() {
+  const name  = document.getElementById('s-name').value.trim();
+  const email = document.getElementById('s-email').value.trim();
+  const pass  = document.getElementById('s-pass').value;
+  if (!name || !email || !pass) { showMsg('signup', 'Please fill in all fields.', 'error'); return; }
+  if (pass.length < 6) { showMsg('signup', 'Password must be at least 6 characters.', 'error'); return; }
+  const btn = document.getElementById('signup-btn');
+  btn.textContent = 'Creating…'; btn.disabled = true;
+  try {
+    const user = await Auth.register(name, email, pass);
+    setUser(user);
+    showMsg('signup', `Welcome, ${user.name.split(' ')[0]}! Account created.`, 'success');
+    setTimeout(() => closeModal('signup'), 1500);
+    showToast('Account created successfully!', 'success');
+  } catch(e) {
+    showMsg('signup', e.message || 'Signup failed', 'error');
+  } finally {
+    btn.textContent = 'Create Account →'; btn.disabled = false;
+  }
+}
+
+function setUser(u) {
+  currentUser = u;
+  document.getElementById('authBtns').style.display = 'none';
+  document.getElementById('userPill').classList.add('show');
+  document.getElementById('userAvatar').textContent = u.name[0].toUpperCase();
+  document.getElementById('userName').textContent   = u.name.split(' ')[0];
+  document.getElementById('dashName').textContent   = u.name.split(' ')[0];
+}
+
+function logout() {
+  Auth.logout();
+  currentUser = null;
+  document.getElementById('authBtns').style.display = 'flex';
+  document.getElementById('userPill').classList.remove('show');
+  historyData = [];
+  renderHistoryGrid();
+  showToast('Logged out successfully.', 'info');
+}
+
+/* ── MODALS ──────────────────────────────────────── */
+function openModal(id) {
+  document.getElementById('modal-' + id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+  clearMsg(id);
+}
+function closeModal(id) {
+  document.getElementById('modal-' + id).classList.remove('open');
+  if (!document.querySelector('.overlay.open')) document.body.style.overflow = '';
+}
+function switchModal(from, to) { closeModal(from); setTimeout(() => openModal(to), 220); }
+function overlayClose(e, id) { if (e.target === e.currentTarget) closeModal(id); }
+function showMsg(modal, text, type) {
+  const el = document.getElementById(modal + '-msg');
+  if (el) { el.textContent = text; el.className = 'msg-box ' + type; }
+}
+function clearMsg(modal) {
+  const el = document.getElementById(modal + '-msg');
+  if (el) { el.textContent = ''; el.className = 'msg-box'; }
+}
+
+/* ── CHIPS ───────────────────────────────────────── */
+function initChips(id, multi = false) {
+  document.getElementById(id).querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      if (!multi) document.getElementById(id).querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      c.classList.toggle('active');
+      if (!multi && !c.classList.contains('active')) c.classList.add('active');
+    });
+  });
+}
+function getChips(id) {
+  return [...document.querySelectorAll(`#${id} .chip.active`)].map(c => c.dataset.val).filter(Boolean);
+}
+initChips('meal-chips', false);
+initChips('time-chips', false);
+initChips('diet-chips', true);
+
+/* ── RECIPE HTML BUILDER ─────────────────────────── */
+function buildRecipeHTML(r, showFavBtn = false) {
+  const ings  = (r.ingredients || []).map(i => `<li><span>${i.name}</span><span class="ing-qty">${i.qty}</span></li>`).join('');
+  const steps = (r.steps || []).map(s => `<li>${s}</li>`).join('');
+  const nutEntries = r.nutrition
+    ? Object.entries(r.nutrition).map(([k,v]) => `<div class="nut-item"><span class="nut-val">${v}</span><span class="nut-lbl">${k}</span></div>`).join('')
+    : '';
+  return `
+    <div class="rc-header">
+      <div class="rc-badges">
+        ${r.cuisine    ? `<span class="badge">${r.cuisine}</span>` : ''}
+        ${r.meal_type  ? `<span class="badge green">${r.meal_type}</span>` : ''}
+        ${r.spice_level? `<span class="badge gold">${r.spice_level}</span>` : ''}
+        ${r.difficulty ? `<span class="badge dark">${r.difficulty}</span>` : ''}
+      </div>
+      <div class="rc-name">${r.name}</div>
+      <div class="rc-desc">${r.description || ''}</div>
+    </div>
+    <div class="rc-times">
+      <div class="rt-item"><span class="rt-val">${r.prep_time||'—'}</span><span class="rt-lbl">Prep</span></div>
+      <div class="rt-item"><span class="rt-val">${r.cook_time||'—'}</span><span class="rt-lbl">Cook</span></div>
+      <div class="rt-item"><span class="rt-val">${r.total_time||'—'}</span><span class="rt-lbl">Total</span></div>
+    </div>
+    <div class="rc-body">
+      <div class="rc-col border-r">
+        <div class="col-title">Ingredients</div>
+        <ul class="ing-list">${ings}</ul>
+      </div>
+      <div class="rc-col">
+        <div class="col-title">Method</div>
+        <ol class="step-list">${steps}</ol>
+      </div>
+    </div>
+    ${nutEntries ? `<div class="rc-nutrition"><div class="col-title">Nutrition Per Serving</div><div class="nut-grid">${nutEntries}</div></div>` : ''}
+    ${r.chef_tip ? `<div class="rc-tip"><div class="col-title">Chef's Note</div><div class="tip-box"><span class="tip-icon">💡</span><span>${r.chef_tip}</span></div></div>` : ''}
+    ${showFavBtn ? `<div class="rc-actions">
+      <button class="btn-fav ${r.isFavourite?'is-fav':''}" id="fav-modal-btn" onclick="toggleFavInModal('${r._id}',this)">
+        ${r.isFavourite?'❤️ Saved':'❤️ Save to Favourites'}
+      </button>
+    </div>` : ''}`;
+}
+
+/* ── GENERATOR ───────────────────────────────────── */
+async function generateRecipe() {
+  if (!currentUser) { openModal('login'); return; }
+  const ing = document.getElementById('g-ingredients').value.trim();
+  if (!ing) { showGenError('Please enter at least a few ingredients.'); return; }
+  clearGenError();
+  setGenLoading(true);
+
+  const cuisine  = document.getElementById('g-cuisine').value;
+  const servings = document.getElementById('g-servings').value || '2';
+  const diet     = getChips('diet-chips');
+  const meal     = getChips('meal-chips').join('') || 'any';
+  const time     = getChips('time-chips').join('');
+
+  try {
+    const recipe = await Recipes.generate({ ingredients:ing, cuisine, dietary:diet, meal_type:meal, max_time:time, servings:Number(servings) });
+    showGenResult(recipe);
+    addToLocalHistory(recipe);
+    loadDashboard();
+    showToast('Recipe generated!', 'success');
+  } catch(e) {
+    showGenError('Could not generate recipe. ' + (e.message || 'Please try again.'));
+    showToast('Generation failed — try again.', 'error');
+  } finally {
+    setGenLoading(false);
+  }
+}
+
+function setGenLoading(on) {
+  document.getElementById('gen-btn').disabled = on;
+  if (on) document.getElementById('gen-result').innerHTML = `
+    <div class="gen-loader">
+      <div class="spinner"></div>
+      <p>Crafting your perfect recipe…</p>
+      <div class="loader-dots"><span></span><span></span><span></span></div>
+    </div>`;
+}
+function showGenError(msg) {
+  document.getElementById('gen-error').innerHTML = `<div class="err-box">${msg}</div>`;
+}
+function clearGenError() { document.getElementById('gen-error').innerHTML = ''; }
+
+function showGenResult(r) {
+  document.getElementById('gen-result').innerHTML = `
+    <div class="recipe-card">
+      ${buildRecipeHTML(r)}
+      <div class="rc-actions">
+        <button class="btn-fav ${r.isFavourite?'is-fav':''}" id="fav-gen-btn" onclick="toggleFavGen('${r._id}',this)">
+          ${r.isFavourite?'❤️ Saved':'❤️ Save to Favourites'}
+        </button>
+        <button class="btn-again" onclick="generateRecipe()">↻ Generate Another</button>
+      </div>
+    </div>`;
+}
+
+async function toggleFavGen(id, btn) {
+  if (!currentUser) { openModal('login'); return; }
+  try {
+    const isFav = await Recipes.toggleFavourite(id);
+    btn.textContent = isFav ? '❤️ Saved' : '❤️ Save to Favourites';
+    btn.classList.toggle('is-fav', isFav);
+    const r = historyData.find(x => x._id === id);
+    if (r) r.isFavourite = isFav;
+    showToast(isFav ? 'Saved to favourites!' : 'Removed from favourites.', isFav ? 'success' : 'info');
+  } catch(e) { showToast('Could not update: ' + e.message, 'error'); }
+}
+
+/* ── DASHBOARD ───────────────────────────────────── */
+async function loadDashboard() {
+  if (!currentUser) return;
+  try {
+    const stats = await Recipes.getStats();
+    document.getElementById('dash-stats').innerHTML = `
+      <div class="stat-card orange"><div class="sc-icon">🍽</div><div class="sc-val">${stats.total}</div><div class="sc-lbl">Recipes Generated</div></div>
+      <div class="stat-card rose"><div class="sc-icon">❤️</div><div class="sc-val">${stats.favourites}</div><div class="sc-lbl">Saved Favourites</div></div>
+      <div class="stat-card teal"><div class="sc-icon">🌍</div><div class="sc-val">${stats.cuisinesExplored}</div><div class="sc-lbl">Cuisines Explored</div></div>
+      <div class="stat-card amber"><div class="sc-icon">🔥</div><div class="sc-val">${stats.streak}</div><div class="sc-lbl">Day Streak</div></div>`;
+
+    const { recipes } = await Recipes.getAll({ limit: 5 });
+    const listEl = document.getElementById('recent-list');
+    if (listEl) {
+      listEl.innerHTML = recipes.length
+        ? recipes.map(r => `
+          <div class="r-row" onclick="openRecipeDetail('${r._id}')">
+            <div class="r-emoji">${r.emoji||'🍽'}</div>
+            <div class="r-info">
+              <div class="r-name">${r.name}</div>
+              <div class="r-meta">${r.cuisine||'—'} · ${r.cook_time||'—'} · ${r.servings} servings</div>
+            </div>
+            <div class="r-time">${timeAgo(r.createdAt)}</div>
+          </div>`).join('')
+        : '<p style="color:var(--muted);font-size:13px">Generate your first recipe to see it here.</p>';
+    }
+
+    const cEl = document.getElementById('cuisine-breakdown');
+    if (cEl && stats.topCuisines.length) {
+      const max = stats.topCuisines[0].count || 1;
+      cEl.innerHTML = stats.topCuisines.map((c, i) => `
+        <div class="c-item">
+          <div class="c-row"><span class="c-name">${c.cuisine||'Other'}</span><span class="c-pct">${Math.round(c.count/(stats.total||1)*100)}%</span></div>
+          <div class="c-bar"><div class="c-fill c${i}" style="width:${Math.round(c.count/max*100)}%"></div></div>
+        </div>`).join('');
+    } else if (cEl) {
+      cEl.innerHTML = '<p style="color:var(--muted);font-size:13px">Generate some recipes to see your cuisine mix.</p>';
+    }
+  } catch(e) { console.warn('Dashboard:', e.message); }
+}
+
+/* ── HISTORY ─────────────────────────────────────── */
+let historyData = [];
+let histFilter  = 'all';
+let histSearch  = '';
+
+const CUISINE_COLORS = {
+  Italian:'#e74c3c', Indian:'#e67e22', Japanese:'#2c3e50',
+  Mexican:'#27ae60', Mediterranean:'#2980b9', Chinese:'#c0392b',
+  French:'#8e44ad', Thai:'#16a085', Korean:'#c0392b', American:'#2980b9',
+};
+
+async function loadHistory() {
+  if (!currentUser) return;
+  try {
+    const { recipes } = await Recipes.getAll({ limit: 100 });
+    historyData = recipes.map(r => ({ ...r, emoji: r.emoji || '🍽', date: (r.createdAt||'').split('T')[0] }));
+    renderHistoryGrid();
+  } catch(e) { console.warn('History:', e.message); }
+}
+
+function addToLocalHistory(recipe) {
+  historyData.unshift({ ...recipe, emoji:'🍽', date:new Date().toISOString().split('T')[0] });
+  renderHistoryGrid();
+}
+
+function renderHistoryGrid() {
+  const grid = document.getElementById('hist-grid');
+  const data = historyData.filter(r => {
+    if (histFilter === 'favourite') return r.isFavourite;
+    const matchFilter = histFilter === 'all' || r.cuisine === histFilter;
+    const matchSearch = !histSearch || (r.name+r.description+r.cuisine).toLowerCase().includes(histSearch.toLowerCase());
+    return matchFilter && matchSearch;
+  });
+
+  if (!data.length) {
+    grid.innerHTML = `<div class="hist-empty-state">
+      <div class="empty-icon">🔍</div>
+      <p>No recipes found.<br>Try a different filter or generate a new recipe!</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = data.map(r => {
+    const cc = CUISINE_COLORS[r.cuisine] || 'var(--primary)';
+    return `<div class="hist-card" style="--cuisine-color:${cc}" onclick="openRecipeDetail('${r._id}')">
+      <div class="hcard-top">
+        <div class="hcard-badges">
+          ${r.cuisine  ? `<span class="badge">${r.cuisine}</span>` : ''}
+          ${r.meal_type? `<span class="badge green">${r.meal_type}</span>` : ''}
+          ${r.isFavourite ? `<span class="badge gold">❤️ Fav</span>` : ''}
+        </div>
+        <div class="hcard-name">${r.emoji||'🍽'} ${r.name}</div>
+        <div class="hcard-desc">${r.description||''}</div>
+      </div>
+      <div class="hcard-bot">
+        <div class="hcard-meta">
+          <span class="hm">⏱ ${r.cook_time||r.total_time||'—'}</span>
+          <span class="hm">📅 ${r.date||'—'}</span>
+          <span class="hm">⚡ ${r.difficulty||'—'}</span>
+        </div>
+        <div class="hcard-actions">
+          <button class="ha-btn ${r.isFavourite?'is-fav':''}" title="${r.isFavourite?'Unfavourite':'Favourite'}"
+            onclick="event.stopPropagation();toggleFav('${r._id}',this)">❤️</button>
+          <button class="ha-btn" title="Delete"
+            onclick="event.stopPropagation();deleteRecipe('${r._id}','${r.name}')">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterHistory(btn, val) {
+  document.querySelectorAll('.hf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  histFilter = val;
+  renderHistoryGrid();
+}
+
+function filterHistoryByFav() {
+  histFilter = 'favourite';
+  document.querySelectorAll('.hf-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes('Favourites'));
+  });
+  renderHistoryGrid();
+}
+
+function searchHistory() {
+  histSearch = document.getElementById('hist-search-input').value;
+  renderHistoryGrid();
+}
+
+async function toggleFav(id, btn) {
+  if (!currentUser) return;
+  try {
+    const isFav = await Recipes.toggleFavourite(id);
+    btn.classList.toggle('is-fav', isFav);
+    btn.title = isFav ? 'Unfavourite' : 'Favourite';
+    const r = historyData.find(x => x._id === id);
+    if (r) r.isFavourite = isFav;
+    renderHistoryGrid();
+    showToast(isFav ? 'Saved to favourites!' : 'Removed from favourites.', isFav ? 'success' : 'info');
+  } catch(e) { console.warn(e); }
+}
+
+async function deleteRecipe(id, name) {
+  if (!confirm(`Remove "${name}" from history?`)) return;
+  try {
+    if (currentUser && id && id.length === 24) await Recipes.delete(id);
+    historyData = historyData.filter(r => r._id !== id);
+    renderHistoryGrid();
+    loadDashboard();
+    showToast('Recipe deleted.', 'info');
+  } catch(e) { showToast('Could not delete: ' + e.message, 'error'); }
+}
+
+/* ── RECIPE DETAIL MODAL ─────────────────────────── */
+function openRecipeDetail(id) {
+  const recipe = historyData.find(r => r._id === id);
+  if (!recipe) return;
+  document.getElementById('rdm-title').textContent  = recipe.name;
+  document.getElementById('rdm-content').innerHTML  = buildRecipeHTML(recipe, true);
+  openModal('recipe-detail');
+}
+
+async function toggleFavInModal(id, btn) {
+  if (!currentUser) return;
+  try {
+    const isFav = await Recipes.toggleFavourite(id);
+    btn.textContent = isFav ? '❤️ Saved' : '❤️ Save to Favourites';
+    btn.classList.toggle('is-fav', isFav);
+    const r = historyData.find(x => x._id === id);
+    if (r) { r.isFavourite = isFav; renderHistoryGrid(); }
+    showToast(isFav ? 'Saved to favourites!' : 'Removed from favourites.', isFav ? 'success' : 'info');
+  } catch(e) { showToast('Could not update: ' + e.message, 'error'); }
+}
+
+/* ── UTILITIES ───────────────────────────────────── */
+function timeAgo(d) {
+  if (!d) return '—';
+  const s = Math.floor((Date.now() - new Date(d)) / 1000);
+  if (s < 60)    return 'Just now';
+  if (s < 3600)  return Math.floor(s/60) + 'm ago';
+  if (s < 86400) return Math.floor(s/3600) + 'h ago';
+  const days = Math.floor(s/86400);
+  return days === 1 ? 'Yesterday' : days + ' days ago';
+}
+
+/* ── INIT ────────────────────────────────────────── */
+renderHistoryGrid();
+
+(async () => {
+  try {
+    if (localStorage.getItem('srg_token')) {
+      const user = await Auth.me();
+      setUser(user);
+      loadDashboard();
+      loadHistory();
+    }
+  } catch(e) {
+    localStorage.removeItem('srg_token');
+  }
+})();
+</script>
+</body>
+</html>
